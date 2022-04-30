@@ -1,5 +1,7 @@
 # What is it?
 
+Fork Changes: Generates CSV dataset instead of a JSON, and filters differently
+
 [TheMovieDB](http://themoviedb.org) is a Movie Database, useful for NLP, rescsys, and search experimentation. This repo crawls the TMDB API following the TMDB API rules, and places them into local gzipped JSON files so you can go forth and experiment with movie data.
 
 OSC uses this dataset in it's [training classes](https://opensourceconnections.com/training/), which if you are into search, you will be interested in!
