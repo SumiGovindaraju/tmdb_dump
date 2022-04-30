@@ -33,7 +33,7 @@ def scrub_chunks():
             movies = json.load(zip_ref)
             for m in movies.keys():
                 dat = movies[m]
-                if dat["vote_count"] > 5:
+                if dat["vote_count"] >= 5:
                     keep.append(dat)
                     count += 1
 
