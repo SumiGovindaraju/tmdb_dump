@@ -8,7 +8,7 @@ from requests.exceptions import ConnectionError
 # you'll need to have an API key for TMDB
 # to run these examples,
 # run export TMDB_API_KEY=<YourAPIKey>
-tmdb_api_key = os.environ["TMDB_API_KEY"]
+tmdb_api_key = '' # TODO enter
 # Setup tmdb as its own session, caching requests
 # (we only want to cache tmdb, not elasticsearch)
 # Get your TMDB API key from
@@ -30,14 +30,26 @@ def getCastAndCrew(movieId, movie):
     try:
         crew = credits['crew']
         directors = []
+        producers = []
+        eps = []
+
         for crewMember in crew: #D
             if crewMember['job'] == 'Director':
                 directors.append(crewMember)
+            if crewMember['job'] == 'Producer':
+                producers.append(crewMember)
+            if crewMember['job'] == 'Executive Producer':
+                eps.append(crewMember)
+                
     except KeyError as e:
         print(e)
         print(credits)
+
     movie['cast'] = credits['cast']
     movie['directors'] = directors
+    movie['crew'] = credits['crew']
+    movie['producers'] = producers
+    movie['exec_producers'] = eps
 
 def extract(startChunk=0, movieIds=[], chunkSize=5000, existing_movies={}):
     movieDict = {}
@@ -62,7 +74,10 @@ def extract(startChunk=0, movieIds=[], chunkSize=5000, existing_movies={}):
                 if httpResp.status_code <= 300:
                     movie = json.loads(httpResp.text)
                     getCastAndCrew(movieId, movie)
-                    movieDict[str(movieId)] = movie
+
+                    if movie['budget'] >= 100 and movie['revenue'] >= 100 and not movie['adult'] \
+                        and movie['runtime'] is not None and movie['runtime'] >= 45:
+                        movieDict[str(movieId)] = movie
                     fetched += 1
                 elif httpResp.status_code == 404:
                     missing += 1
