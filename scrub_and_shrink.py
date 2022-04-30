@@ -3,6 +3,7 @@ import json
 import gzip
 
 from datetime import date
+import csv
 
 # this script requires the results of `tmdb.py`
 # it shrinks the results to a reasonable size for TLRE demos (~50,000),
@@ -22,28 +23,34 @@ def scrub_chunks():
     if len(files) == 0 :
         raise SystemExit("No chunks found in `chunks/`. Did you run `tmdb.py` already?")
 
-    keep = dict()
+    keep = []
+    count = 0
+
+    keys = None
 
     for f in files:
         with gzip.open(f, "r") as zip_ref:
             movies = json.load(zip_ref)
             for m in movies.keys():
                 dat = movies[m]
-                if ( not dat["adult"] and
-                    dat["vote_count"] > 5 and
-                    dat["budget"] > 1 and
-                    dat["original_language"] == "en" and
-                    dat["poster_path"] is not None and
-                    dat["runtime"] is not None and
-                    dat["runtime"] > 59 and
-                    dat["release_date"] 
-                    ):
-                    k = dat["id"]
-                    keep.update({k : dat})
-    return keep
+                if dat["vote_count"] > 5:
+                    keep.append(dat)
+                    count += 1
+
+                    if keys is None:
+                        keys = dat.keys()
+
+    print("Kept %d movies" % count)
+    return keys, keep
 
 if __name__ == "__main__":
-    keep = scrub_chunks()
-    filename = "tmdb_dump_" + str(date.today()) + ".json"
-    with open(filename, "w") as f:
-        json.dump(keep, f)
+    keys, keep = scrub_chunks()
+    filename = "tmdb_dump_" + str(date.today()) + "_1.csv"
+
+    with open(filename, 'w') as csvfile:
+        writer = csv.writer(csvfile)
+
+        writer.writerow(keys)
+
+        for movie in keep:
+            writer.writerow(movie.values())
