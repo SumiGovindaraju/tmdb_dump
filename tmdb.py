@@ -41,15 +41,14 @@ def getCastAndCrew(movieId, movie):
             if crewMember['job'] == 'Executive Producer':
                 eps.append(crewMember)
                 
+        movie['cast'] = credits['cast']
+        movie['directors'] = directors
+        movie['crew'] = credits['crew']
+        movie['producers'] = producers
+        movie['exec_producers'] = eps
     except KeyError as e:
         print(e)
         print(credits)
-
-    movie['cast'] = credits['cast']
-    movie['directors'] = directors
-    movie['crew'] = credits['crew']
-    movie['producers'] = producers
-    movie['exec_producers'] = eps
 
 def extract(startChunk=0, movieIds=[], chunkSize=5000, existing_movies={}):
     movieDict = {}
